@@ -196,7 +196,7 @@
         bottom: 15px;
         left: 50%;
         transform: translateX(-50%);
-        z-index: 10;
+        z-index: 9;
         font-size: 16px; /* 12px */
         color: rgba(240, 230, 210, 0.4);
         width: 90%;
@@ -211,13 +211,13 @@
       /* --- Botão "Buy me a coffee" --- */
       .coffee-container {
         position: absolute;
-        bottom: 20px;
-        right: 20px;
+        top: 20px;
+        left: 20px;
         z-index: 10;
       }
 
       .coffee-button {
-        display: inline-block;
+        display: block;
         background: rgba(10, 20, 40, 0.95);
         color: #c89b3c;
         padding: 12px 20px;
@@ -230,6 +230,7 @@
         box-shadow: 0 0 20px rgba(200, 155, 60, 0.3);
         cursor: pointer;
         font-family: "Poppins", sans-serif;
+        white-space: nowrap;
       }
 
       .coffee-button:hover {
@@ -346,18 +347,16 @@
           width: 90px;
         }
 
-        /* Ajustes do layout mobile: botão acima do rodapé */
+        /* Botão continua no canto superior direito no mobile */
         .coffee-container {
           position: absolute;
-          bottom: 60px;
-          left: 50%;
-          transform: translateX(-50%);
-          right: auto;
+          top: 15px;
+          right: 15px;
         }
 
         .coffee-button {
-          padding: 10px 20px;
-          font-size: 0.85rem;
+          padding: 10px 16px;
+          font-size: 0.8rem;
         }
 
         /* Rodapé em coluna no mobile */
@@ -438,7 +437,7 @@
     <!-- Rodapé -->
     <footer>
       Este site não é afiliado à Riot Games nem ao League of Legends.<br />
-      Criado por <strong>Gustavo Borges e Luan Longen</strong> ☕
+      Criado por <strong>Gustavo Borges e Luan Longen</strong>
     </footer>
 
     <script>
@@ -573,7 +572,7 @@
 
         // Função para buscar os dados do status do URF
         async function fetchURFStatus() {
-          const endpoint = "https://api.tatendourf.lol/status"
+          const endpoint = "https://n8n.gustavobsilva.com.br/webhook/tatendourf"
 
           try {
             // Tenta buscar da API real
