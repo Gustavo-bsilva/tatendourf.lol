@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Meta tags de SEO e Título -->
+    <title>Tá tendo URF? | TatendoURF.lol</title>
+    <meta
+      name="description"
+      content="Descubra se o modo URF está ativo no League of Legends — rápido, bonito e direto ao ponto."
+    />
+
+    <!-- Favicon (Ícone "U" dourado em SVG) -->
+    <link
+      rel="icon"
+      href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cGF0aCBmaWxsPSIjQzg5QjNDIiBkPSJNMjUgMTBoNTB2NTBhMjUgMjUgMCAwIDEgLTUwIDB6TTM3LjUgMzVoMjV2MjVhMTIuNSAxMi41IDAgMCAxIC0yNSAwdi0yNXoiIC8+PC9zdmc+"
+    />
+
+    <!-- Importação da Fonte Poppins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet" />
+
+    <style>
+      /* --- Importação da Fonte Beaufort for LoL (Local) --- */
+      @font-face {
+        font-family: "Beaufort for LOL";
+        src: url("beaufort-for-lol/BeaufortforLOL-Bold.ttf") format("truetype");
+        font-weight: 700;
+        font-style: normal;
+        font-display: swap;
+      }
+
+      @font-face {
+        font-family: "Beaufort for LOL";
+        src: url("beaufort-for-lol/BeaufortforLOL-Heavy.ttf") format("truetype");
+        font-weight: 900;
+        font-style: normal;
+        font-display: swap;
+      }
+
+      @font-face {
+        font-family: "Beaufort for LOL";
+        src: url("beaufort-for-lol/BeaufortforLOL-Regular.ttf") format("truetype");
+        font-weight: 400;
+        font-style: normal;
+        font-display: swap;
+      }
+
+      @font-face {
+        font-family: "Beaufort for LOL";
+        src: url("beaufort-for-lol/BeaufortforLOL-Medium.ttf") format("truetype");
+        font-weight: 500;
+        font-style: normal;
+        font-display: swap;
+      }
+
+      /* --- Reset e Configurações Globais --- */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        height: 100%;
+        width: 100%;
+        overflow: hidden; /* Evita barras de rolagem por causa do canvas e background */
+      }
+
+      body {
+        font-family: "Poppins", sans-serif;
+        background-color: #010a13; /* Azul bem escuro (Hextech) */
+        color: #f0e6d2; /* Quase branco (Papiro de LoL) */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        position: relative; /* Para posicionar elementos absolutos */
+
+        /* Background Image */
+        background-image: url("https://nexus.leagueoflegends.com/wp-content/uploads/2019/10/LOL_CMS_308_Tile_01-Feature_H50-V50-min_jofavih5pb7yykeo8rcm.jpg"); /* SUBSTITUA PELA URL DA IMAGE 1 */
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed; /* Imagem fica fixa ao rolar, mas como não tem rolagem, é opcional */
+      }
+
+      /* Overlay escuro para a imagem de fundo */
+      body::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.6); /* Ajuste a opacidade conforme necessário */
+        z-index: 0;
+      }
+
+      /* --- Fundo de Partículas Animadas --- */
+      #particle-canvas {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1; /* Fica acima do overlay, mas abaixo do conteúdo principal */
+        opacity: 0.7;
+      }
+
+      /* --- Logo Sutil --- */
+      .logo-container {
+        position: absolute;
+        top: 20px;
+        right: 25px;
+        z-index: 10;
+      }
+
+      .logo-container img {
+        width: 120px; /* Tamanho da logo */
+        height: auto;
+        opacity: 0.6; /* Mais opaco para a logo, para se destacar */
+        transition: opacity 0.3s ease;
+      }
+
+      .logo-container img:hover {
+        opacity: 1;
+      }
+
+      /* --- Conteúdo Principal Centralizado --- */
+      .content-container {
+        position: relative;
+        z-index: 2; /* Acima do canvas e do overlay */
+        padding: 60px 70px;
+        background: rgba(10, 20, 40, 0.95); /* Fundo do card azul escuro */
+        border: 2px solid #c89b3c; /* Borda dourada mais grossa */
+        border-radius: 12px;
+        box-shadow: 0 0 40px rgba(200, 155, 60, 0.5); /* Brilho dourado mais forte */
+        backdrop-filter: blur(5px);
+        -webkit-backdrop-filter: blur(5px);
+      }
+
+      #main-title {
+        font-family: "Beaufort for LOL", serif; /* Fonte oficial do League of Legends */
+        font-size: 5rem; /* 80px - aumentado bastante */
+        font-weight: 700;
+        color: #c89b3c; /* Dourado */
+        margin-bottom: 30px;
+        text-shadow: 0 0 15px rgba(200, 155, 60, 0.6);
+        letter-spacing: 2px;
+      }
+
+      #status-container {
+        min-height: 180px; /* Aumentado para acomodar textos maiores */
+      }
+
+      #status-answer {
+        font-size: 4rem; /* 64px - aumentado bastante */
+        font-weight: 700;
+        color: #ffffff;
+        margin-bottom: 25px;
+        transition: all 0.3s ease-in-out;
+        text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+      }
+
+      #status-dates {
+        font-size: 1.3rem; /* 21px - aumentado */
+        color: #a09480; /* Cor secundária */
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        align-items: center;
+        opacity: 1;
+        transition: opacity 0.5s ease;
+      }
+
+      /* Classe para esconder as datas */
+      #status-dates.hidden {
+        display: none !important;
+        opacity: 0;
+      }
+
+      #status-dates span {
+        background-color: rgba(0, 0, 0, 0.3);
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-weight: 500;
+      }
+
+      /* --- Rodapé --- */
+      footer {
+        position: absolute;
+        bottom: 15px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 10;
+        font-size: 16px; /* 12px */
+        color: rgba(240, 230, 210, 0.4);
+        width: 90%;
+        line-height: 1.5;
+      }
+
+      footer strong {
+        color: rgba(240, 230, 210, 0.6);
+        font-weight: 400;
+      }
+
+      /* --- Botão "Buy me a coffee" --- */
+      .coffee-container {
+        position: absolute;
+        bottom: 20px;
+        right: 20px;
+        z-index: 10;
+      }
+
+      .coffee-button {
+        display: inline-block;
+        background: rgba(10, 20, 40, 0.95);
+        color: #c89b3c;
+        padding: 12px 20px;
+        border: 2px solid #c89b3c;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 0 20px rgba(200, 155, 60, 0.3);
+        cursor: pointer;
+        font-family: "Poppins", sans-serif;
+      }
+
+      .coffee-button:hover {
+        background: rgba(200, 155, 60, 0.2);
+        color: #f0e6d2;
+        box-shadow: 0 0 30px rgba(200, 155, 60, 0.5);
+        transform: translateY(-2px);
+      }
+
+      /* --- Modal do Pix --- */
+      .modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.8);
+        z-index: 1000;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .modal-overlay.show {
+        display: flex;
+      }
+
+      .modal-content {
+        background: rgba(10, 20, 40, 0.95);
+        border: 2px solid #c89b3c;
+        border-radius: 12px;
+        padding: 30px;
+        max-width: 400px;
+        width: 90%;
+        box-shadow: 0 0 40px rgba(200, 155, 60, 0.5);
+        position: relative;
+        text-align: center;
+      }
+
+      .modal-close {
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        font-size: 28px;
+        color: #c89b3c;
+        cursor: pointer;
+        background: none;
+        border: none;
+        transition: color 0.3s ease;
+      }
+
+      .modal-close:hover {
+        color: #f0e6d2;
+      }
+
+      .modal-title {
+        font-family: "Beaufort for LOL", serif;
+        font-size: 1.8rem;
+        color: #c89b3c;
+        margin-bottom: 20px;
+        text-shadow: 0 0 10px rgba(200, 155, 60, 0.5);
+      }
+
+      .qr-code-container {
+        background: white;
+        padding: 15px;
+        border-radius: 8px;
+        display: inline-block;
+        margin: 15px 0;
+      }
+
+      .qr-code-container img {
+        width: 250px;
+        height: 250px;
+        display: block;
+      }
+
+      .modal-text {
+        color: #f0e6d2;
+        font-size: 16px;
+        margin-top: 15px;
+        line-height: 1.6;
+      }
+
+      /* --- Responsividade --- */
+      @media (max-width: 600px) {
+        .content-container {
+          width: 90%;
+          padding: 40px 30px;
+        }
+
+        #main-title {
+          font-size: 3rem; /* 48px */
+        }
+
+        #status-answer {
+          font-size: 2.5rem; /* 40px */
+        }
+
+        #status-container {
+          min-height: 140px;
+        }
+
+        #status-dates {
+          font-size: 1.1rem;
+        }
+
+        .logo-container {
+          top: 15px;
+          right: 15px;
+        }
+
+        .logo-container img {
+          width: 90px;
+        }
+
+        /* Ajustes do layout mobile: botão acima do rodapé */
+        .coffee-container {
+          position: absolute;
+          bottom: 60px;
+          left: 50%;
+          transform: translateX(-50%);
+          right: auto;
+        }
+
+        .coffee-button {
+          padding: 10px 20px;
+          font-size: 0.85rem;
+        }
+
+        /* Rodapé em coluna no mobile */
+        footer {
+          bottom: 10px;
+          font-size: 16px; /* 10px */
+          display: flex;
+          flex-direction: column;
+          gap: 5px;
+        }
+
+        footer br {
+          display: none;
+        }
+      }
+
+      @media (max-width: 380px) {
+        #main-title {
+          font-size: 2.2rem; /* 35px */
+        }
+        #status-answer {
+          font-size: 2rem; /* 32px */
+        }
+        #status-dates {
+          font-size: 0.95rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Canvas para o Fundo Animado --><canvas id="particle-canvas"></canvas>
+
+    <!-- Logo de LoL -->
+    <div class="logo-container">
+      <img
+        src="https://cmsassets.rgpub.io/sanity/images/dsfx7636/news/9eb028de391e65072d06e77f06d0955f66b9fa2c-736x316.png?auto=format&fit=fill&q=80&w=300"
+        alt="League of Legends Logo"
+      />
+      <!-- SUBSTITUA PELA URL DA IMAGE 2 -->
+    </div>
+
+    <!-- Container Principal do Conteúdo -->
+    <main class="content-container">
+      <h1 id="main-title">Tá tendo URF?</h1>
+
+      <div id="status-container">
+        <!-- Resposta dinâmica (Sim/Não) -->
+        <p id="status-answer">Carregando...</p>
+
+        <!-- Datas (escondidas por padrão) -->
+        <div id="status-dates" class="hidden">
+          <span>Início: <strong id="start-date"></strong></span>
+          <span>Fim: <strong id="end-date"></strong></span>
+        </div>
+      </div>
+    </main>
+
+    <!-- Botão "Buy me a coffee" -->
+    <div class="coffee-container">
+      <button class="coffee-button" id="open-pix-modal">Buy me a coffee ☕</button>
+    </div>
+
+    <!-- Modal do Pix -->
+    <div class="modal-overlay" id="pix-modal">
+      <div class="modal-content">
+        <button class="modal-close" id="close-modal">&times;</button>
+        <h2 class="modal-title">Me pague um café! ☕</h2>
+        <div class="qr-code-container">
+          <img src="qr-code-pix.png" alt="QR Code Pix" />
+        </div>
+        <p class="modal-text">
+          Escaneie o QR Code acima com o app do seu banco<br />
+          para fazer uma doação via Pix. Obrigado! 🙏
+        </p>
+      </div>
+    </div>
+
+    <!-- Rodapé -->
+    <footer>
+      Este site não é afiliado à Riot Games nem ao League of Legends.<br />
+      Criado por <strong>Gustavo Borges e Luan Longen</strong> ☕
+    </footer>
+
+    <script>
+      /**
+       * -------------------------------------------
+       * LÓGICA DO FUNDO DE PARTÍCULAS
+       * -------------------------------------------
+       */
+      document.addEventListener("DOMContentLoaded", () => {
+        const canvas = document.getElementById("particle-canvas")
+        const ctx = canvas.getContext("2d")
+
+        let particlesArray
+
+        // Ajusta o tamanho do canvas para o tamanho da tela
+        function resizeCanvas() {
+          canvas.width = window.innerWidth
+          canvas.height = window.innerHeight
+        }
+        resizeCanvas()
+
+        // Classe da Partícula
+        class Particle {
+          constructor(x, y, directionX, directionY, size, color) {
+            this.x = x
+            this.y = y
+            this.directionX = directionX
+            this.directionY = directionY
+            this.size = size
+            this.color = color
+          }
+
+          // Desenha a partícula
+          draw() {
+            ctx.beginPath()
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2, false)
+            ctx.fillStyle = this.color
+            ctx.fill()
+          }
+
+          // Atualiza a posição da partícula
+          update() {
+            // Verifica os limites da tela
+            if (this.x > canvas.width || this.x < 0) {
+              this.directionX = -this.directionX
+            }
+            if (this.y > canvas.height || this.y < 0) {
+              this.directionY = -this.directionY
+            }
+
+            // Move a partícula
+            this.x += this.directionX
+            this.y += this.directionY
+            this.draw()
+          }
+        }
+
+        // Cria o array de partículas
+        function initParticles() {
+          particlesArray = []
+          let numberOfParticles = (canvas.height * canvas.width) / 9000
+          let colors = ["#C89B3C", "#0BC6E3", "#F0E6D2"] // Dourado, Azul Hextech, Papiro
+
+          for (let i = 0; i < numberOfParticles; i++) {
+            let size = Math.random() * 1.5 + 1
+            let x = Math.random() * (canvas.width - size * 2 - size * 2) + size * 2
+            let y = Math.random() * (canvas.height - size * 2 - size * 2) + size * 2
+            let directionX = Math.random() * 0.4 - 0.2 // Movimento lento
+            let directionY = Math.random() * 0.4 - 0.2 // Movimento lento
+            let color = colors[Math.floor(Math.random() * colors.length)]
+
+            particlesArray.push(new Particle(x, y, directionX, directionY, size, color))
+          }
+        }
+
+        // Loop de animação
+        function animateParticles() {
+          requestAnimationFrame(animateParticles)
+          ctx.clearRect(0, 0, canvas.width, canvas.height)
+
+          for (let i = 0; i < particlesArray.length; i++) {
+            particlesArray[i].update()
+          }
+        }
+
+        // Recria as partículas ao redimensionar a tela
+        window.addEventListener("resize", () => {
+          resizeCanvas()
+          initParticles()
+        })
+
+        initParticles()
+        animateParticles()
+
+        /**
+         * -------------------------------------------
+         * LÓGICA DE STATUS DO URF
+         * -------------------------------------------
+         */
+
+        // Seletores do DOM
+        const statusAnswerEl = document.getElementById("status-answer")
+        const statusDatesEl = document.getElementById("status-dates")
+        const startDateEl = document.getElementById("start-date")
+        const endDateEl = document.getElementById("end-date")
+
+        // Função para formatar a data de YYYY-MM-DD para DD/MM/YYYY
+        function formatDate(dateString) {
+          try {
+            const [year, month, day] = dateString.split("-")
+            return `${day}/${month}/${year}`
+          } catch (e) {
+            console.warn("Formato de data inválido:", dateString)
+            return dateString // Retorna a string original se falhar
+          }
+        }
+
+        // Função para atualizar a UI com os dados
+        function updateUI(data) {
+          if (data.is_active) {
+            // SIM, TÁ TENDO URF
+            statusAnswerEl.textContent = "Sim 😄"
+            startDateEl.textContent = formatDate(data.start_date)
+            endDateEl.textContent = formatDate(data.end_date)
+            statusDatesEl.classList.remove("hidden")
+          } else {
+            // NÃO, QUE PENA
+            statusAnswerEl.textContent = "Não 😞"
+            statusDatesEl.classList.add("hidden")
+          }
+        }
+
+        // Função para buscar os dados do status do URF
+        async function fetchURFStatus() {
+          const endpoint = "https://api.tatendourf.lol/status"
+
+          try {
+            // Tenta buscar da API real
+            const response = await fetch(endpoint)
+            if (!response.ok) {
+              throw new Error(`Erro na API: ${response.statusText}`)
+            }
+            const data = await response.json()
+            updateUI(data)
+          } catch (error) {
+            console.error("Erro ao buscar dados do URF:", error.message)
+            console.warn("Usando dados mockados como fallback.")
+
+            const mockData = {
+              is_active: false,
+              start_date: "",
+              end_date: ""
+            }
+
+            setTimeout(() => {
+              updateUI(mockData)
+            }, 500)
+          }
+        }
+
+        // Inicia a busca ao carregar a página
+        fetchURFStatus()
+
+        /**
+         * -------------------------------------------
+         * LÓGICA DO MODAL DO PIX
+         * -------------------------------------------
+         */
+        const openPixModalBtn = document.getElementById("open-pix-modal")
+        const pixModal = document.getElementById("pix-modal")
+        const closeModalBtn = document.getElementById("close-modal")
+
+        // Abre o modal
+        openPixModalBtn.addEventListener("click", () => {
+          pixModal.classList.add("show")
+        })
+
+        // Fecha o modal ao clicar no X
+        closeModalBtn.addEventListener("click", () => {
+          pixModal.classList.remove("show")
+        })
+
+        // Fecha o modal ao clicar fora do conteúdo
+        pixModal.addEventListener("click", e => {
+          if (e.target === pixModal) {
+            pixModal.classList.remove("show")
+          }
+        })
+
+        // Fecha o modal ao pressionar ESC
+        document.addEventListener("keydown", e => {
+          if (e.key === "Escape" && pixModal.classList.contains("show")) {
+            pixModal.classList.remove("show")
+          }
+        })
+      })
+    </script>
+  </body>
+</html>
