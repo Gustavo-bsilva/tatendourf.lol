@@ -142,12 +142,12 @@
         position: relative;
         z-index: 2; /* Acima do canvas e do overlay */
         padding: 60px 70px;
-        background: rgba(10, 20, 40, 0.95); /* Fundo do card azul escuro */
-        border: 2px solid #c89b3c; /* Borda dourada mais grossa */
-        border-radius: 12px;
-        box-shadow: 0 0 40px rgba(200, 155, 60, 0.5); /* Brilho dourado mais forte */
-        backdrop-filter: blur(5px);
-        -webkit-backdrop-filter: blur(5px);
+        background: rgba(10, 20, 40, 0.4); /* Mais transparente */
+        border: none; /* Sem borda */
+        border-radius: 20px;
+        box-shadow: 0 0 60px rgba(200, 155, 60, 0.2); /* Brilho mais suave */
+        backdrop-filter: blur(15px); /* Blur aumentado */
+        -webkit-backdrop-filter: blur(15px);
       }
 
       #main-title {
@@ -210,9 +210,17 @@
         line-height: 1.5;
       }
 
-      footer strong {
+      footer a {
         color: rgba(240, 230, 210, 0.6);
         font-weight: 400;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        border-bottom: 1px solid transparent;
+      }
+
+      footer a:hover {
+        color: #c89b3c;
+        border-bottom: 1px solid #c89b3c;
       }
 
       /* --- Botão "Buy me a coffee" --- */
@@ -322,6 +330,43 @@
         line-height: 1.6;
       }
 
+      .copy-pix-button {
+        margin-top: 20px;
+        background: #c89b3c;
+        color: #010a13;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-family: "Poppins", sans-serif;
+        font-weight: 700;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(200, 155, 60, 0.3);
+      }
+
+      .copy-pix-button:hover {
+        background: #f0e6d2;
+        box-shadow: 0 6px 20px rgba(200, 155, 60, 0.5);
+        transform: translateY(-2px);
+      }
+
+      .copy-pix-button:active {
+        transform: translateY(0);
+      }
+
+      .copy-feedback {
+        color: #0bc6e3;
+        font-size: 0.85rem;
+        margin-top: 10px;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      .copy-feedback.show {
+        opacity: 1;
+      }
+
       /* --- Responsividade --- */
       @media (max-width: 600px) {
         .content-container {
@@ -411,7 +456,7 @@
 
       <div id="status-container">
         <!-- Resposta dinâmica (Sim/Não) -->
-        <p id="status-answer">Carregando...</p>
+        <p id="status-answer">Buscando...</p>
 
         <!-- Datas (escondidas por padrão) -->
         <div id="status-dates" class="hidden">
@@ -438,13 +483,17 @@
           Escaneie o QR Code acima com o app do seu banco<br />
           para fazer uma doação via Pix. Obrigado! 🙏
         </p>
+        <button class="copy-pix-button" id="copy-pix-btn">Copiar chave Pix 📋</button>
+        <p class="copy-feedback" id="copy-feedback">Chave Pix copiada! ✓</p>
       </div>
     </div>
 
     <!-- Rodapé -->
     <footer>
       Este site não é afiliado à Riot Games nem ao League of Legends.<br />
-      Criado por <strong>Gustavo Borges e Luan Longen</strong>
+      Criado por
+      <a href="https://www.linkedin.com/in/gustavo-bsilva/" target="_blank" rel="noopener noreferrer">Gustavo Borges</a>
+      e <a href="https://www.linkedin.com/in/luanlongen/" target="_blank" rel="noopener noreferrer">Luan Longen</a>
     </footer>
 
     <script>
@@ -616,6 +665,11 @@
         const openPixModalBtn = document.getElementById("open-pix-modal")
         const pixModal = document.getElementById("pix-modal")
         const closeModalBtn = document.getElementById("close-modal")
+        const copyPixBtn = document.getElementById("copy-pix-btn")
+        const copyFeedback = document.getElementById("copy-feedback")
+
+        // Chave Pix
+        const pixKey = "gustavoborges1107@gmail.com"
 
         // Abre o modal
         openPixModalBtn.addEventListener("click", () => {
@@ -638,6 +692,36 @@
         document.addEventListener("keydown", e => {
           if (e.key === "Escape" && pixModal.classList.contains("show")) {
             pixModal.classList.remove("show")
+          }
+        })
+
+        // Copia a chave Pix para a área de transferência
+        copyPixBtn.addEventListener("click", async () => {
+          try {
+            await navigator.clipboard.writeText(pixKey)
+            copyFeedback.classList.add("show")
+            setTimeout(() => {
+              copyFeedback.classList.remove("show")
+            }, 3000)
+          } catch (err) {
+            console.error("Erro ao copiar:", err)
+            // Fallback para navegadores mais antigos
+            const textArea = document.createElement("textarea")
+            textArea.value = pixKey
+            textArea.style.position = "fixed"
+            textArea.style.opacity = "0"
+            document.body.appendChild(textArea)
+            textArea.select()
+            try {
+              document.execCommand("copy")
+              copyFeedback.classList.add("show")
+              setTimeout(() => {
+                copyFeedback.classList.remove("show")
+              }, 3000)
+            } catch (err2) {
+              console.error("Fallback falhou:", err2)
+            }
+            document.body.removeChild(textArea)
           }
         })
       })
